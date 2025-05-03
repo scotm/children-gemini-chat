@@ -15,8 +15,11 @@ import { userProfiles, type UserProfile } from "@/lib/userProfile";
 import { v4 as uuidv4 } from "uuid";
 import { useSpeechRecognition } from "@/lib/hooks/useSpeechRecognition";
 import { useSpeechSynthesis } from "@/lib/hooks/useSpeechSynthesis";
+import { ProfileSelector } from "@/components/ProfileSelector";
+import { ChatHistory } from "@/components/ChatHistory";
+import { ChatInput } from "@/components/ChatInput";
 
-interface MessageType {
+export interface MessageType {
 	id: string;
 	sender: "user" | "bot";
 	text: string;
@@ -142,77 +145,22 @@ export default function Home() {
 	return (
 		<div className="flex flex-col h-screen p-4 sm:p-6 lg:p-8">
 			<div className="mb-4">
-				<Select
-					onValueChange={(value) => {
-						const profile = userProfiles.find(
-							(p) => p.age.toString() === value,
-						);
-						if (profile) {
-							handleProfileChange(profile);
-						}
-					}}
-				>
-					<SelectTrigger className="w-[180px]">
-						<SelectValue placeholder="Select profile" />
-					</SelectTrigger>
-					<SelectContent>
-						{userProfiles.map((profile) => (
-							<SelectItem key={profile.age} value={profile.age.toString()}>
-								{profile.age} years old
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<ProfileSelector
+					userProfiles={userProfiles}
+					selectedProfile={selectedProfile}
+					onProfileChange={handleProfileChange}
+				/>
 			</div>
 			<ScrollArea className="flex-1 border rounded-md p-4 sm:p-6 mb-4">
-				<div className="flex flex-col gap-4">
-					{chatHistory.map((msg) => (
-						<div
-							key={msg.id}
-							className={`flex items-start gap-2 ${
-								msg.sender === "user" ? "justify-end" : "justify-start"
-							} animate-fade-in`}
-						>
-							{msg.sender === "bot" && (
-								<div className="w-8 h-8 rounded-full bg-green-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-									AI
-								</div>
-							)}
-							<div
-								className={`p-3 rounded-lg max-w-[70%] ${
-									msg.sender === "user"
-										? "bg-blue-400 text-white"
-										: "bg-yellow-100 text-gray-800"
-								}`}
-							>
-								{msg.text}
-							</div>
-						</div>
-					))}
-					{chatHistory.length === 0 && (
-						<p className="text-center text-gray-500">Start the conversation!</p>
-					)}
-				</div>
+				<ChatHistory chatHistory={chatHistory} />
 			</ScrollArea>
-
-			<div className="flex gap-2">
-				<Input
-					placeholder="Type your message or use voice input..."
-					value={message}
-					onChange={(e) => setMessage(e.target.value)}
-					onKeyPress={(e) => {
-						if (e.key === "Enter") {
-							handleSendMessage();
-						}
-					}}
-				/>
-				<Button
-					onClick={toggleListening}
-					className={isListening ? "bg-red-500 hover:bg-red-600" : ""}
-				>
-					{isListening ? "Listening..." : "Voice Input"}
-				</Button>
-			</div>
+			<ChatInput
+				message={message}
+				onMessageChange={setMessage}
+				onSend={handleSendMessage}
+				isListening={isListening}
+				onVoiceInput={toggleListening}
+			/>
 		</div>
 	);
 }
