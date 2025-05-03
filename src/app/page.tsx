@@ -1,103 +1,294 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area"; // Will use later for chat messages
+
+// Define a type for chat messages
+interface MessageType {
+	sender: "user" | "bot";
+	text: string;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+	const [message, setMessage] = useState("");
+	const [chatHistory, setChatHistory] = useState<MessageType[]>([]); // Will use later for chat history
+	const [isListening, setIsListening] = useState(false); // For STT indicator
+	const [recognition, setRecognition] = useState<SpeechRecognition | null>(
+		null,
+	);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+	// Implement STT logic here
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	useEffect(() => {
+		// With @types/dom-speech-recognition installed, types should be available
+		if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+			const SpeechRecognition =
+				window.SpeechRecognition || window.webkitSpeechRecognition;
+			const recognitionInstance = new SpeechRecognition();
+			recognitionInstance.continuous = false;
+			recognitionInstance.interimResults = false;
+			recognitionInstance.lang = "en-US"; // Set language
+
+			recognitionInstance.onstart = () => {
+				setIsListening(true);
+			};
+
+			// Explicitly type event using SpeechRecognitionEvent
+			recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
+				const transcript = event.results[0][0].transcript;
+				setMessage(transcript);
+				setIsListening(false);
+			};
+
+			// Explicitly type event using SpeechRecognitionErrorEvent
+			recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
+				console.error("Speech recognition error:", event.error);
+				setIsListening(false);
+			};
+
+			recognitionInstance.onend = () => {
+				setIsListening(false);
+			};
+
+			setRecognition(recognitionInstance);
+		} else {
+			console.warn("Speech Recognition not supported in this browser.");
+			// Optionally disable the STT button or show a message
+		}
+
+		// Cleanup
+		return () => {
+			if (recognition) {
+				recognition.stop();
+			}
+		};
+	}, []); // Empty dependency array means this effect runs once on mount
+
+	const toggleListening = () => {
+		if (recognition) {
+			if (isListening) {
+				recognition.stop();
+			} else {
+				recognition.start();
+			}
+		}
+	};
+
+	const [selectedVoice, setSelectedVoice] =
+		useState<SpeechSynthesisVoice | null>(null);
+
+	// TODO: Implement sending message to API and handling streaming response
+
+	// Implement TTS logic here
+	const speakText = (text: string) => {
+		if ("speechSynthesis" in window) {
+			const utterance = new SpeechSynthesisUtterance(text);
+
+			// TODO: Select a child-appropriate voice
+			if (selectedVoice) {
+				utterance.voice = selectedVoice;
+			} else {
+				// Use the first available voice if none is selected
+				const voices = window.speechSynthesis.getVoices();
+				if (voices.length > 0) {
+					utterance.voice = voices[0];
+				}
+			}
+
+			window.speechSynthesis.speak(utterance);
+		} else {
+			console.warn("Text-to-Speech not supported in this browser.");
+		}
+	};
+
+	const handleSendMessage = async () => {
+		if (!message.trim()) return; // Prevent sending empty messages
+
+		const userMessage: MessageType = { sender: "user", text: message };
+		setChatHistory((prevHistory) => [...prevHistory, userMessage]);
+		setMessage(""); // Clear input immediately
+
+		try {
+			const response = await fetch("/api/chat", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ message: message }),
+			});
+
+			if (!response.ok || !response.body) {
+				console.error("Error sending message:", response.statusText);
+				const errorMessage: MessageType = {
+					sender: "bot",
+					text: "Sorry, I couldn't process your message right now.",
+				};
+				setChatHistory((prevHistory) => [...prevHistory, errorMessage]);
+				speakText(errorMessage.text);
+				return;
+			}
+
+			const reader = response.body.getReader();
+			const decoder = new TextDecoder();
+			let botResponseText = "";
+			const botMessage: MessageType = { sender: "bot", text: "" };
+
+			// Add a placeholder for the bot's message and update it as chunks arrive
+			setChatHistory((prevHistory) => [...prevHistory, botMessage]);
+
+			while (true) {
+				const { value, done } = await reader.read();
+				if (done) break;
+
+				const chunk = decoder.decode(value, { stream: true });
+				botResponseText += chunk;
+
+				// Update the last message in chat history with the new chunk
+				setChatHistory((prevHistory) => {
+					const lastMessage = prevHistory[prevHistory.length - 1];
+					if (lastMessage.sender === "bot") {
+						return [
+							...prevHistory.slice(0, -1),
+							{ ...lastMessage, text: botResponseText },
+						];
+					}
+					return prevHistory; // Should not happen if logic is correct
+				});
+
+				// Speak the chunk (optional, can speak full response at the end)
+				// speakText(chunk); // Speaking chunk by chunk might be too fast/choppy
+			}
+
+			// Speak the full response after streaming is complete
+			speakText(botResponseText);
+		} catch (error) {
+			console.error("Error handling streaming response:", error);
+			const errorMessage: MessageType = {
+				sender: "bot",
+				text: "An error occurred while getting the response.",
+			};
+			setChatHistory((prevHistory) => [...prevHistory, errorMessage]);
+			speakText(errorMessage.text);
+		}
+	};
+
+	const [availableVoices, setAvailableVoices] = useState<
+		SpeechSynthesisVoice[]
+	>([]);
+
+	// Add useEffect to load voices and set a default child voice
+	useEffect(() => {
+		const loadVoices = () => {
+			const voices = window.speechSynthesis.getVoices();
+			setAvailableVoices(voices);
+
+			// Implement logic to select a child-appropriate voice
+			let childVoice = voices.find(
+				(voice) =>
+					voice.name.toLowerCase().includes("child") ||
+					voice.name.toLowerCase().includes("kid") ||
+					voice.name.toLowerCase().includes("junior"),
+				// Add other potential keywords or criteria
+			);
+
+			// If no specific child voice is found, try to find a standard female voice
+			if (!childVoice) {
+				childVoice = voices.find((voice) =>
+					voice.name.toLowerCase().includes("female"),
+				);
+			}
+
+			// If a suitable voice is found, set it, otherwise use the first available voice
+			if (childVoice) {
+				setSelectedVoice(childVoice);
+			} else if (voices.length > 0) {
+				setSelectedVoice(voices[0]);
+			}
+		};
+
+		// Load voices initially
+		loadVoices();
+
+		// Voices might not be immediately available, listen for the 'voiceschanged' event
+		if ("speechSynthesis" in window) {
+			window.speechSynthesis.onvoiceschanged = loadVoices;
+		}
+
+		// Cleanup
+		return () => {
+			if ("speechSynthesis" in window) {
+				window.speechSynthesis.onvoiceschanged = null;
+			}
+		};
+	}, []); // Empty dependency array means this effect runs once on mount
+
+	return (
+		<div className="flex flex-col h-screen p-4">
+			{/* Chat messages display area */}
+			<ScrollArea className="flex-1 border rounded-md p-4 mb-4">
+				<div className="flex flex-col gap-4">
+					{chatHistory.map((msg, index) => (
+						<div
+							// biome-ignore lint/suspicious/noArrayIndexKey: Using index as key temporarily until unique IDs are implemented
+							key={index}
+							className={`flex items-start gap-2 ${
+								msg.sender === "user" ? "justify-end" : "justify-start"
+							}`}
+						>
+							{/* Chatbot Avatar Placeholder */}
+							{msg.sender === "bot" && (
+								<div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-bold">
+									AI
+								</div>
+							)}
+							<div
+								className={`p-3 rounded-lg max-w-[70%] ${
+									msg.sender === "user"
+										? "bg-blue-500 text-white"
+										: "bg-gray-200 text-gray-800"
+								}`}
+							>
+								{msg.text}
+							</div>
+							{/* User Avatar Placeholder (Optional) */}
+							{/* {msg.sender === "user" && (
+								<div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-sm font-bold">
+									You
+								</div>
+							)} */}
+						</div>
+					))}
+					{/* Placeholder message if chatHistory is empty */}
+					{chatHistory.length === 0 && (
+						<p className="text-center text-gray-500">Start the conversation!</p>
+					)}
+				</div>
+			</ScrollArea>
+
+			{/* Input area */}
+			<div className="flex gap-2">
+				<Input
+					placeholder="Type your message or use voice input..."
+					value={message}
+					onChange={(e) => setMessage(e.target.value)}
+					onKeyPress={(e) => {
+						if (e.key === "Enter") {
+							handleSendMessage();
+						}
+					}}
+				/>
+				{/* STT Button */}
+				<Button
+					onClick={toggleListening}
+					className={isListening ? "bg-red-500 hover:bg-red-600" : ""} // Change color when listening
+				>
+					{isListening ? "Listening..." : "Voice Input"}
+				</Button>
+				{/* Send Button - Will use later */}
+				{/* <Button onClick={handleSendMessage}>Send</Button> */}
+			</div>
+		</div>
+	);
 }
