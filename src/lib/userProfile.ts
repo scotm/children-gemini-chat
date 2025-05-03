@@ -12,4 +12,16 @@ export const placeholderUserProfile: UserProfile = {
   interests: ["stories", "drawing", "science", "animals"], // Example interests
 };
 
-// TODO: Implement logic to load the actual user profile
+export const userProfiles = [
+  placeholderUserProfile,
+  {
+    age: 6,
+    characteristics: ["shy", "quiet", "observant"],
+    interests: ["animals", "nature", "books"],
+  },
+  {
+    age: 10,
+    characteristics: ["outgoing", "energetic", "sporty"],
+    interests: ["sports", "games", "friends"],
+  },
+];

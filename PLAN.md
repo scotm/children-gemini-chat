@@ -27,7 +27,7 @@ The core technology stack will include:
 * **Package Manager:** Bun
 * **AI Model:** Google Gemini Flash
 
-Biome will be configured to enforce standard, widely accepted rules for React/Next.js and TypeScript projects.
+Biome is configured to enforce standard, widely accepted rules for React/Next.js and TypeScript projects.
 
 ## 3. System Prompt Definition
 
@@ -63,21 +63,21 @@ The user is an 8-year-old girl. She is bright, curious, imaginative, and creativ
 
 ## 4. Functional Requirements
 
-* **Streaming Responses:** AI-generated responses will be streamed token-by-token to the user interface.
+* **Streaming Responses:** AI-generated responses are streamed token-by-token to the user interface (Implemented).
 * **Speech Capabilities:**
-  * **Speech-to-Text (STT):** Integrate STT for voice input.
-  * **Text-to-Speech (TTS):** Integrate TTS for audible chatbot responses using a child-appropriate voice.
+  * **Speech-to-Text (STT):** Integrated STT for voice input using the Web Speech API (Implemented, type safety resolved).
+  * **Text-to-Speech (TTS):** Integrated TTS for audible chatbot responses using the Web Speech API (Implemented, includes basic voice selection).
 
 ## 5. User Interface (UI) and Visual Persona
 
 Key design considerations for the UI and visual persona:
 
-* Bright, cheerful, and attractive color palette.
-* Clear, easy-to-read typography.
-* Simple, intuitive, and uncluttered layout with large, tappable elements.
-* Friendly and appealing visual persona/avatar.
-* Subtle, playful animations and sound effects.
-* Straightforward and visually guided navigation.
+* Bright, cheerful, and attractive color palette (Basic layout implemented with Tailwind CSS).
+* Clear, easy-to-read typography (Using default browser fonts, can be refined).
+* Simple, intuitive, and uncluttered layout with large, tappable elements (Basic layout implemented).
+* Friendly and appealing visual persona/avatar (Placeholder avatar added).
+* Subtle, playful animations and sound effects (Not yet implemented).
+* Straightforward and visually guided navigation (Not applicable for current single-page design).
 
 ## 6. Detailed Implementation Requirements
 
@@ -85,51 +85,51 @@ This section breaks down the plan into specific, actionable requirements:
 
 ### 6.1. Project Setup and Dependencies
 
-* Verify the integrity and standard Next.js structure of the current project directory.
-* Confirm that Bun is configured as the project's package manager.
-* Install the `@google/generative-ai` SDK as a project dependency.
-* Ensure Tailwind CSS is correctly installed and configured within the Next.js project.
-* Install and configure shadcn/ui components, starting with necessary components for a chat interface (e.g., Button, Input, ScrollArea).
-* Research, select, and install appropriate libraries for Speech-to-Text (STT) and Text-to-Speech (TTS) functionality that are compatible with a Next.js frontend and potentially a Node.js backend if a server-side STT/TTS is chosen.
-* Set up environment variables to securely store API keys required for Google Gemini and any chosen STT/TTS services.
+* Verify the integrity and standard Next.js structure of the current project directory (Completed).
+* Confirm that Bun is configured as the project's package manager (Completed).
+* Install the `@google/genai` SDK as a project dependency (Completed).
+* Ensure Tailwind CSS is correctly installed and configured within the Next.js project (Completed).
+* Install and configure shadcn/ui components, starting with necessary components for a chat interface (e.g., Button, Input, ScrollArea) (Completed).
+* Research, select, and install appropriate libraries for Speech-to-Text (STT) and Text-to-Speech (TTS) functionality (Completed - using Web Speech API).
+* Set up environment variables to securely store API keys required for Google Gemini and any chosen STT/TTS services (Completed - user added GOOGLE_API_KEY).
 
 ### 6.2. Biome Configuration
 
-* Configure the `biome.json` file to include formatting rules for consistent code style across the project.
-* Configure Biome linting rules to enforce best practices for React, Next.js, and TypeScript code.
-* Add npm/Bun scripts to `package.json` for easily running Biome formatting and linting checks.
+* Configure the `biome.json` file to include formatting rules for consistent code style across the project (Basic configuration present).
+* Configure Biome linting rules to enforce best practices for React, Next.js, and TypeScript code (Basic configuration present, warning suppressed for array key).
+* Add npm/Bun scripts to `package.json` for easily running Biome formatting and linting checks (Not explicitly added, but standard scripts exist).
 
 ### 6.3. Core Chat Functionality (Gemini Integration, Streaming)
 
-* Create a new API route within the `src/app/api` directory (or a suitable location for API routes in the project structure) to handle incoming chat messages.
-* Implement server-side logic within the API route to initialize the Google Gemini model using the provided API key.
-* Construct the API request to the Gemini model, including the user's message and the dynamically generated system prompt.
-* Configure the Gemini API call to receive responses as a stream.
-* Implement server-side logic to forward the streamed tokens from the Gemini API to the frontend client.
-* On the frontend, implement JavaScript/TypeScript code to establish a connection to the API route and receive the streamed tokens.
-* Develop frontend logic to append and display the received tokens in the chat message area in real-time.
+* Create a new API route within the `src/app/api` directory (or a suitable location for API routes in the project structure) to handle incoming chat messages (Completed).
+* Implement server-side logic within the API route to initialize the Google Gemini model using the provided API key (Completed).
+* Construct the API request to the Gemini model, including the user's message and the dynamically generated system prompt (Completed - dynamic prompt generation implemented with placeholder profile).
+* Configure the Gemini API call to receive responses as a stream (Completed).
+* Implement server-side logic to forward the streamed tokens from the Gemini API to the frontend client (Completed).
+* On the frontend, implement JavaScript/TypeScript code to establish a connection to the API route and receive the streamed tokens (Completed).
+* Develop frontend logic to append and display the received tokens in the chat message area in real-time (Completed).
 
 ### 6.4. Speech Capabilities (STT, TTS)
 
-* Implement Speech-to-Text (STT) functionality on the frontend, allowing users to provide voice input. This should include handling browser permissions for microphone access.
-* Design and implement a clear UI indicator (e.g., a pulsing microphone icon) when STT is active and listening.
-* Convert the transcribed text from STT into a string that can be sent as a user message.
-* Implement Text-to-Speech (TTS) functionality on the frontend to audibly read out the chatbot's responses.
-* Select and configure a specific voice for the TTS output that is friendly, clear, and appropriate for children.
-* Ensure the TTS output plays automatically when a new chatbot message is received.
+* Implement Speech-to-Text (STT) functionality on the frontend, allowing users to provide voice input (Completed - using Web Speech API). This should include handling browser permissions for microphone access (Basic implementation added).
+* Design and implement a clear UI indicator (e.g., a pulsing microphone icon) when STT is active and listening (Implemented - button color change).
+* Convert the transcribed text from STT into a string that can be sent as a user message (Completed).
+* Implement Text-to-Speech (TTS) functionality on the frontend to audibly read out the chatbot's responses (Completed - using Web Speech API).
+* Select and configure a specific voice for the TTS output that is friendly, clear, and appropriate for children (Implemented - basic keyword search for voice selection).
+* Ensure the TTS output plays automatically when a new chatbot message is received (Completed).
 
 ### 6.5. User Interface (UI) Development
 
-* Design and implement the overall chat interface layout using Tailwind CSS, adhering to a bright and child-friendly color scheme.
-* Implement responsive design principles so the UI is usable on different screen sizes.
-* Develop a component for displaying individual chat messages, clearly distinguishing between user and chatbot messages.
-* Implement a scrollable container for chat messages that automatically scrolls to the latest message.
-* Develop an input area component that includes a text input field and a button for initiating STT.
-* Design and implement the chatbot's visual avatar or persona within the UI.
-* Incorporate subtle animations for message entry and streaming responses to enhance the user experience.
+* Design and implement the overall chat interface layout using Tailwind CSS, adhering to a bright and child-friendly color scheme (Basic layout and colors implemented, can be refined).
+* Implement responsive design principles so the UI is usable on different screen sizes (Basic responsive padding added).
+* Develop a component for displaying individual chat messages, clearly distinguishing between user and chatbot messages (Implemented).
+* Implement a scrollable container for chat messages that automatically scrolls to the latest message (Implemented using ScrollArea).
+* Develop an input area component that includes a text input field and a button for initiating STT (Implemented).
+* Design and implement the chatbot's visual avatar or persona within the UI (Placeholder avatar added).
+* Incorporate subtle animations for message entry and streaming responses to enhance the user experience (Not yet implemented).
 
 ### 6.6. System Prompt Implementation
 
-* Define a data structure or configuration file to store the system prompt template and potentially pre-defined user profiles or characteristics.
-* Implement a function or utility to dynamically generate the complete system prompt string by combining the template with the specific user's profile information.
-* Ensure this dynamic system prompt generation is called before each API request to the Gemini model.
+* Define a data structure or configuration file to store the system prompt template and potentially pre-defined user profiles or characteristics (Completed - UserProfile type and placeholder created).
+* Implement a function or utility to dynamically generate the complete system prompt string by combining the template with the specific user's profile information (Completed - dynamic generation using placeholder profile).
+* Ensure this dynamic system prompt generation is called before each API request to the Gemini model (Completed).
