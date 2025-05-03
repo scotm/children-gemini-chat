@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Children Gemini Chat
 
-## Getting Started
+This project is a chat application built with Next.js, React, and Tailwind CSS. It uses the Gemini API for chat functionality.
 
-First, run the development server:
+## Requirements
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+* [Bun](https://bun.sh/) (version 1.0 or higher)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    ```bash
+    git clone <repository_url>
+    cd children-gemini-chat
+    ```
 
-## Learn More
+2. Install dependencies using Bun:
 
-To learn more about Next.js, take a look at the following resources:
+    ```bash
+    bun install
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create a `.env.local` file in the project root.
 
-## Deploy on Vercel
+2. Add the following environment variables:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    ```plaintext
+    GOOGLE_API_KEY=<your_google_api_key>
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    You can obtain a Google API key from the [Google Cloud Console](https://console.cloud.google.com/). It should have Generative Language API enabled.
+
+## Running the application
+
+1. Start the development server:
+
+    ```bash
+    bun run dev
+    ```
+
+2. Open your browser and navigate to [http://localhost:3000](http://localhost:3000).
+
+## Deployment
+
+The project can be deployed to any platform that supports Next.js deployments, such as Vercel or Netlify.
+
+1. Build the application:
+
+    ```bash
+    bun run build
+    ```
+
+2. Deploy the `out` directory to your chosen platform.
+
+## Linting and Formatting
+
+This project uses [Biome](https://biomejs.dev/) for linting and formatting.
+
+* To format the code, run:
+
+    ```bash
+    bunx @biomejs/biome format ./src --write
+    ```
+
+* To lint the code, run:
+
+    ```bash
+    bunx @biomejs/biome lint ./src
+    ```
+
+## Contributing
+
+Contributions are welcome! Please submit a pull request with your changes.
